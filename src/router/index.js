@@ -5,18 +5,14 @@ const router = createRouter({
     routes: [
         {
             path: '/list',
+            alias: '',
             name: 'TraineeList',
             component: () => import('@/components/TraineeList.vue')
         },
         {
-            path: '/add',
-            name: 'AddTrainee',
-            component: () => import('@/components/AddTrainee.vue')
-        },
-        {
-            path: '/edit',
-            name: 'EditTrainee',
-            component: () => import('@/components/EditTrainee.vue')
+            path: '/add-edit',
+            name: 'AddEditTrainee',
+            component: () => import('@/components/AddEditTrainee.vue')
         }
     ]
 });
