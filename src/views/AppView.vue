@@ -13,6 +13,6 @@ import { computed } from 'vue';
 const route = useRoute();
 
 const header = computed(() => {
-    return route.name === 'TraineeList' ? 'User list' : 'Add or edit user';
+    return route.name === 'TraineeList' ? 'User list' : 'Add or Edit user';
 });
 </script>
