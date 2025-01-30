@@ -2,7 +2,7 @@
     <div class="bg-white p-4">
         <div class="flex justify-between items-center mb-4">
             <input v-model="searchQuery" type="text" placeholder="Search users..." class="p-2 border rounded w-1/3" />
-            <button class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer" @click="goToEditAddUser">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer" @click="goToEditAddTrainee('add')">
                 Add User
             </button>
         </div>
@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="trainee in trainees" :key="trainee.id" class="border-b">
+                <tr v-for="trainee in filteredTrainees" :key="trainee.id" class="border-b">
                     <td class="p-2 text-center">
                         <img
                             :src="trainee.avatar"
@@ -29,13 +29,13 @@
                     <td class="p-2 flex justify-center gap-2">
                         <button
                             class="bg-green-500 text-white px-3 py-1 rounded cursor-pointer"
-                            @click="goToEditAddUser(user)"
+                            @click="goToEditAddTrainee('edit', trainee)"
                         >
                             Edit
                         </button>
                         <button
                             class="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
-                            @click="deleteUser(user.id)"
+                            @click="deleteTrainee(trainee.id)"
                         >
                             Delete
                         </button>
@@ -67,14 +67,29 @@
 </template>
 
 <script setup>
-import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const trainees = ref([]);
 const currentPage = ref(1);
-const totalPages = ref(2); //tylko na tyle pozwala api?
+const totalPages = ref(2); // tylko na tyle pozwala api?
+const searchQuery = ref('');
+
+onMounted(() => {
+    getUsers();
+});
+
+const filteredTrainees = computed(() => {
+    if (searchQuery.value.length < 2) {
+        return trainees.value;
+    }
+
+    const searchQueryLowerCase = searchQuery.value.toLowerCase();
+
+    return trainees.value.filter(trainee => trainee.fullName.toLowerCase().includes(searchQueryLowerCase));
+});
 
 async function getUsers() {
     const { data } = await axios.get(`https://reqres.in/api/users?page=${currentPage.value}`);
@@ -94,9 +109,6 @@ async function getUsers() {
 function openPhoto(img) {
     window.open(img, '_blank');
 }
-onMounted(() => {
-    getUsers();
-});
 
 function nextPage() {
     currentPage.value++;
@@ -110,7 +122,11 @@ function prevPage() {
     getUsers();
 }
 
-function goToEditAddUser() {
-    router.push({ name: 'AddEditTrainee' });
+function goToEditAddTrainee(operation, user) {
+    if (operation === 'add') {
+        router.push({ name: 'AddEditTrainee' });
+    } else {
+        router.push({ name: 'AddEditTrainee', props: { user } });
+    }
 }
 </script>
