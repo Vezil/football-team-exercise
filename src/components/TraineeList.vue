@@ -94,6 +94,8 @@ const filteredTrainees = computed(() => {
 async function getUsers() {
     const { data } = await axios.get(`https://reqres.in/api/users?page=${currentPage.value}`);
 
+    searchQuery.value = '';
+
     trainees.value = data.data.map(user => {
         return {
             id: user.id,
