@@ -46,9 +46,21 @@
     </div>
 
     <div class="flex justify-left mt-4">
-        <button class="px-3 py-1 border rounded mx-1" @click="prevPage" :disabled="currentPage === 1">Prev</button>
-        <span class="px-3">Page {{ currentPage }}</span>
-        <button class="px-3 py-1 border rounded mx-1" @click="nextPage" :disabled="currentPage >= totalPages">
+        <button
+            class="px-3 py-1 border rounded mx-1"
+            :class="currentPage === 1 ? 'cursor-default' : 'cursor-pointer'"
+            :disabled="currentPage === 1"
+            @click="prevPage"
+        >
+            Prev
+        </button>
+        <span class="px-3">Page: {{ currentPage }} / {{ totalPages }}</span>
+        <button
+            class="px-3 py-1 border rounded mx-1 cursor-pointer"
+            :class="currentPage === totalPages ? 'cursor-default' : 'cursor-pointer'"
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+        >
             Next
         </button>
     </div>
@@ -60,10 +72,12 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-let trainees = ref([]);
+const trainees = ref([]);
+const currentPage = ref(1);
+const totalPages = ref(2); //tylko na tyle pozwala api?
 
-async function getUsers({ page = 1 }) {
-    const { data } = await axios.get(`https://reqres.in/api/users?page=${page}`);
+async function getUsers() {
+    const { data } = await axios.get(`https://reqres.in/api/users?page=${currentPage.value}`);
 
     trainees.value = data.data.map(user => {
         return {
@@ -74,7 +88,6 @@ async function getUsers({ page = 1 }) {
     });
 
     console.log(data, 'data');
-
     console.log(trainees, 'trainees');
 }
 
@@ -82,8 +95,20 @@ function openPhoto(img) {
     window.open(img, '_blank');
 }
 onMounted(() => {
-    getUsers({ page: 1 });
+    getUsers();
 });
+
+function nextPage() {
+    currentPage.value++;
+
+    getUsers();
+}
+
+function prevPage() {
+    currentPage.value--;
+
+    getUsers();
+}
 
 function goToEditAddUser() {
     router.push({ name: 'AddEditTrainee' });
