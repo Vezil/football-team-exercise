@@ -2,7 +2,9 @@
     <div class="bg-white p-4">
         <div class="flex justify-between items-center mb-4">
             <input v-model="searchQuery" type="text" placeholder="Search users..." class="p-2 border rounded w-1/3" />
-            <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="goToEditAddUser">Add User</button>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer" @click="goToEditAddUser">
+                Add User
+            </button>
         </div>
 
         <table class="w-full border-collapse border border-gray-200">
@@ -14,18 +16,29 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="user in filteredUsers" :key="user.id" class="border-b">
+                <tr v-for="trainee in trainees" :key="trainee.id" class="border-b">
                     <td class="p-2 text-center">
-                        <img :src="user.avatar" alt="Avatar" class="w-10 h-10 rounded-full mx-auto" />
+                        <img
+                            :src="trainee.avatar"
+                            alt="Avatar"
+                            class="w-10 h-10 rounded-full mx-auto cursor-pointer"
+                            @click="openPhoto(trainee.avatar)"
+                        />
                     </td>
-                    <td class="p-2 text-center">{{ user.fullName }}</td>
+                    <td class="p-2 text-center">{{ trainee.fullName }}</td>
                     <td class="p-2 flex justify-center gap-2">
-                        <button class="bg-green-500 text-white px-3 py-1 rounded" @click="goToEditAddUser(user)"
-                            >Edit</button
+                        <button
+                            class="bg-green-500 text-white px-3 py-1 rounded cursor-pointer"
+                            @click="goToEditAddUser(user)"
                         >
-                        <button class="bg-red-500 text-white px-3 py-1 rounded" @click="deleteUser(user.id)"
-                            >Delete</button
+                            Edit
+                        </button>
+                        <button
+                            class="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
+                            @click="deleteUser(user.id)"
                         >
+                            Delete
+                        </button>
                     </td>
                 </tr>
             </tbody>
@@ -42,9 +55,35 @@
 </template>
 
 <script setup>
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+let trainees = ref([]);
+
+async function getUsers({ page = 1 }) {
+    const { data } = await axios.get(`https://reqres.in/api/users?page=${page}`);
+
+    trainees.value = data.data.map(user => {
+        return {
+            id: user.id,
+            avatar: user.avatar,
+            fullName: `${user.first_name} ${user.last_name}`
+        };
+    });
+
+    console.log(data, 'data');
+
+    console.log(trainees, 'trainees');
+}
+
+function openPhoto(img) {
+    window.open(img, '_blank');
+}
+onMounted(() => {
+    getUsers({ page: 1 });
+});
 
 function goToEditAddUser() {
     router.push({ name: 'AddEditTrainee' });
