@@ -136,4 +136,16 @@ function goToEditAddTrainee(operation, trainee) {
         router.push({ name: 'AddEditTrainee' });
     }
 }
+
+async function deleteTrainee(id) {
+    try {
+        if (confirm('Are you sure you want to delete this trainee?')) {
+            await axios.delete(`https://reqres.in/api/users/${id}`);
+
+            trainees.value = trainees.value.filter(trainee => trainee.id !== id);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
 </script>
