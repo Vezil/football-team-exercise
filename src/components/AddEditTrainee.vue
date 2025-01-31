@@ -1,13 +1,13 @@
 <template>
     <div class="md:flex w-full md:gap-20">
         <div class="w-full md:w-2/3 bg-white p-6 rounded-lg shadow">
-            <h2 class="text-xl font-semibold mb-4">Add User</h2>
+            <h2 class="text-xl font-semibold mb-4">{{ baseCaption }}</h2>
             <div class="flex gap-4">
-                <input v-model="firstName" placeholder="First Name" class="border p-2 rounded w-1/2" />
-                <input v-model="lastName" placeholder="Last Name" class="border p-2 rounded w-1/2" />
+                <input v-model="trainee.firstName" placeholder="First Name" class="border p-2 rounded w-1/2" />
+                <input v-model="trainee.lastName" placeholder="Last Name" class="border p-2 rounded w-1/2" />
             </div>
             <button @click="addUser" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">
-                Add User
+                {{ baseCaption }}
             </button>
         </div>
         <div class="w-full md:w-1/3 bg-white mt-10 md:mt-0 p-6 rounded-lg shadow flex flex-col items-center">
@@ -19,24 +19,37 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import axios from 'axios';
+import { storeToRefs } from 'pinia';
+import { useTraineesStore } from '@/stores/trainees';
+
+const { editingTrainee, operationType } = storeToRefs(useTraineesStore());
 
 const firstName = ref('');
 const lastName = ref('');
-const photoUrl = ref('');
 const fileInput = ref(null);
 
-const trainee = computed(() => {
-    return {
-        name: `${firstName.value} ${lastName.value}`,
-        job: 'trainee'
-    };
-});
+const trainee = computed(() => ({
+    firstName: operationType.value === 'add' ? firstName.value : editingTrainee.value.fullName.split(' ')[0],
+    lastName: operationType.value === 'add' ? lastName.value : editingTrainee.value.fullName.split(' ')[1]
+}));
+
+const photoUrl = computed(() => (operationType.value === 'add' ? '' : editingTrainee.value.avatar));
+
+const baseCaption = computed(() => (operationType.value === 'add' ? 'Add User' : 'Edit User'));
 
 const addUser = async () => {
     try {
-        await axios.post(`https://reqres.in/api/users`, trainee.value);
+        const traineeToSend = {
+            name:
+                operationType.value === 'add'
+                    ? `${firstName.value} ${lastName.value}`
+                    : `${editingTrainee.value.firstName} ${editingTrainee.value.lastName}`,
+            job: 'trainee'
+        };
+
+        await axios.post(`https://reqres.in/api/users`, traineeToSend);
     } catch (error) {
         console.error(error);
     }

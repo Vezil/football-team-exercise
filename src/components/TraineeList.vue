@@ -69,7 +69,11 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import axios from 'axios';
+import { useTraineesStore } from '@/stores/trainees';
+
+const { editingTrainee, operationType } = storeToRefs(useTraineesStore());
 
 const router = useRouter();
 const trainees = ref([]);
@@ -103,9 +107,6 @@ async function getUsers() {
             fullName: `${user.first_name} ${user.last_name}`
         };
     });
-
-    console.log(data, 'data');
-    console.log(trainees, 'trainees');
 }
 
 function openPhoto(img) {
@@ -124,11 +125,15 @@ function prevPage() {
     getUsers();
 }
 
-function goToEditAddTrainee(operation, user) {
+function goToEditAddTrainee(operation, trainee) {
+    operationType.value = operation;
+
     if (operation === 'add') {
         router.push({ name: 'AddEditTrainee' });
     } else {
-        router.push({ name: 'AddEditTrainee', props: { user } });
+        editingTrainee.value = trainee;
+
+        router.push({ name: 'AddEditTrainee' });
     }
 }
 </script>
