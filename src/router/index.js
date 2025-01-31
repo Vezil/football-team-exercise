@@ -12,7 +12,14 @@ const router = createRouter({
         {
             path: '/add-edit',
             name: 'AddEditTrainee',
-            component: () => import('@/components/AddEditTrainee.vue')
+            component: () => import('@/components/AddEditTrainee.vue'),
+            beforeEnter: (to, from, next) => {
+                if (from.name === 'TraineeList') {
+                    next();
+                } else {
+                    next({ name: 'TraineeList' });
+                }
+            }
         }
     ]
 });
