@@ -7,12 +7,15 @@
 </template>
 
 <script setup>
-import { RouterView, useRoute } from 'vue-router';
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { RouterView, useRoute } from 'vue-router';
+import { useTraineesStore } from '@/stores/trainees';
 
+const { operationType } = storeToRefs(useTraineesStore());
 const route = useRoute();
 
 const header = computed(() => {
-    return route.name === 'TraineeList' ? 'User list' : 'Add or Edit user';
+    return route.name === 'TraineeList' ? 'User list' : operationType === 'add' ? 'Add User' : 'Edit User';
 });
 </script>

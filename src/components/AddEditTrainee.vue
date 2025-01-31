@@ -29,11 +29,13 @@ import axios from 'axios';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useTraineesStore } from '@/stores/trainees';
+import defaultPhoto from '@/assets/default-photo.jpg';
 
 const { editingTrainee, operationType } = storeToRefs(useTraineesStore());
 
 const fileInput = ref(null);
-const photoUrl = ref('');
+
+const photoUrl = ref(defaultPhoto);
 const router = useRouter();
 
 const trainee = computed(() => ({
@@ -51,7 +53,7 @@ const baseCaption = computed(() => (operationType.value === 'add' ? 'Add User' :
 watch(
     [operationType, editingTrainee],
     () => {
-        photoUrl.value = operationType.value === 'add' ? '' : editingTrainee.value.avatar;
+        photoUrl.value = operationType.value === 'add' ? defaultPhoto : editingTrainee.value.avatar;
     },
     { immediate: true }
 );
@@ -88,8 +90,6 @@ const uploadPhoto = event => {
 
         reader.onload = e => {
             photoUrl.value = e.target.result;
-
-            console.log(photoUrl.value, 'photoUrl.value');
         };
 
         reader.readAsDataURL(file);
